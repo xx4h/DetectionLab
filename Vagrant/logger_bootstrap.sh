@@ -50,8 +50,6 @@ apt_install_prerequisites() {
   # Add repository for suricata
   add-apt-repository -y -n ppa:oisf/suricata-stable 
   # Install prerequisites and useful tools
-  echo "[$(date +%H:%M:%S)]: Running apt-get clean..."
-  apt-get clean
   echo "[$(date +%H:%M:%S)]: Running apt-get update..."
   apt-get -qq update
   echo "[$(date +%H:%M:%S)]: Installing apt-fast..."
