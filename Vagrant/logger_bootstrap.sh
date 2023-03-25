@@ -472,21 +472,22 @@ install_velociraptor() {
   LATEST_VELOCIRAPTOR_LINUX_URL=$(curl -sL https://github.com/Velocidex/velociraptor/releases/ | grep linux-amd64 | grep href | head -1 | cut -d '"' -f 2 | sed 's#^#https://github.com#g')
   echo "[$(date +%H:%M:%S)]: The URL for the latest release was extracted as $LATEST_VELOCIRAPTOR_LINUX_URL"
   echo "[$(date +%H:%M:%S)]: Attempting to download..."
-  wget -P /opt/velociraptor --progress=bar:force "$LATEST_VELOCIRAPTOR_LINUX_URL"
-  if [ "$(file /opt/velociraptor/velociraptor*linux-amd64 | grep -c 'ELF 64-bit LSB executable')" -eq 1 ]; then
+  wget -P /vagrant/cache -nc --progress=bar:force "$LATEST_VELOCIRAPTOR_LINUX_URL"
+  if [ "$(file /vagrant/cache/velociraptor*linux-amd64 | grep -c 'ELF 64-bit LSB executable')" -eq 1 ]; then
     echo "[$(date +%H:%M:%S)]: Velociraptor successfully downloaded!"
   else
     echo "[$(date +%H:%M:%S)]: Failed to download the latest version of Velociraptor. Please open a DetectionLab issue on Github."
     return
   fi
 
-  cd /opt/velociraptor || exit 1
-  mv velociraptor-*-linux-amd64 velociraptor
-  chmod +x velociraptor
+  cd /vagrant/cache || exit 1
+  velociraptor_bin=$(ls -1 velociraptor-*-linux-amd64 | head -n1)
+  chmod +x $velociraptor_bin
   cp /vagrant/resources/velociraptor/server.config.yaml /opt/velociraptor
   echo "[$(date +%H:%M:%S)]: Creating Velociraptor dpkg..."
-  ./velociraptor --config /opt/velociraptor/server.config.yaml debian server
+  ./$velociraptor_bin --config /opt/velociraptor/server.config.yaml debian server
   echo "[$(date +%H:%M:%S)]: Cleanup velociraptor package building leftovers..."
+  ls -al /opt/velociraptor
   rm -rf /opt/velociraptor/logs
   echo "[$(date +%H:%M:%S)]: Installing the dpkg..."
   if dpkg -i velociraptor_*_server.deb >/dev/null; then
