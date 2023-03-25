@@ -36,6 +36,12 @@ echo "[$(date +%H:%M:%S)]: Prepare caching folder"
 mkdir -p /vagrant/cache
 
 apt_install_prerequisites() {
+  echo "[$(date +%H:%M:%S)]: Prepare apt cache folder"
+  mkdir -p /vagrant/cache/apt
+  echo "[$(date +%H:%M:%S)]: Configure apt to use new cache folder"
+  echo "Dir::Cache \"/vagrant/cache/apt\";" > /etc/apt/apt.conf.d/99-cache.conf
+  echo "[$(date +%H:%M:%S)]: Copy already existing cache to new folder"
+  cp -r /var/cache/apt/* /vagrant/cache/apt
   echo "[$(date +%H:%M:%S)]: Adding apt repositories..."
   # Add repository for apt-fast
   add-apt-repository -y -n ppa:apt-fast/stable 
@@ -50,6 +56,8 @@ apt_install_prerequisites() {
   apt-get -qq update
   echo "[$(date +%H:%M:%S)]: Installing apt-fast..."
   apt-get -qq install -y apt-fast
+  echo "[$(date +%H:%M:%S)]: Configure apt-fast to use new cache folder"
+  sed -i -e 's,/var/cache/,/vagrant/cache/,g' /etc/apt-fast.conf
   echo "[$(date +%H:%M:%S)]: Using apt-fast to install packages..."
   apt-fast install -y jq whois build-essential git unzip htop yq mysql-server redis-server python3-pip libcairo2-dev libjpeg-turbo8-dev libpng-dev libtool-bin libossp-uuid-dev libavcodec-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libvncserver-dev libtelnet-dev libssl-dev libvorbis-dev libwebp-dev tomcat9 tomcat9-admin tomcat9-user tomcat9-common net-tools
 }
