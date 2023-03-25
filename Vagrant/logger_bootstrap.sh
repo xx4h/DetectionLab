@@ -160,17 +160,17 @@ install_splunk() {
     if [[ "$(echo "$LATEST_SPLUNK" | grep -c "^https:")" -eq 1 ]] && [[ "$(echo "$LATEST_SPLUNK" | grep -c "\.deb$")" -eq 1 ]]; then
       echo "[$(date +%H:%M:%S)]: The URL to the latest Splunk version was automatically resolved as: $LATEST_SPLUNK"
       echo "[$(date +%H:%M:%S)]: Attempting to download..."
-      wget --progress=bar:force -P /opt "$LATEST_SPLUNK"
+      wget --progress=bar:force -nc -P /vagrant/cache "$LATEST_SPLUNK"
     else
       echo "[$(date +%H:%M:%S)]: Unable to auto-resolve the latest Splunk version. Falling back to hardcoded URL..."
       # Download Hardcoded Splunk
-      wget --progress=bar:force -O /opt/splunk-8.0.2-a7f645ddaf91-linux-2.6-amd64.deb 'https://download.splunk.com/products/splunk/releases/8.0.2/linux/splunk-8.0.2-a7f645ddaf91-linux-2.6-amd64.deb&wget=true'
+      wget --progress=bar:force -O /vagrant/cache/splunk-8.0.2-a7f645ddaf91-linux-2.6-amd64.deb 'https://download.splunk.com/products/splunk/releases/8.0.2/linux/splunk-8.0.2-a7f645ddaf91-linux-2.6-amd64.deb&wget=true'
     fi
-    if ! ls /opt/splunk*.deb 1>/dev/null 2>&1; then
+    if ! ls /vagrant/cache/splunk*.deb 1>/dev/null 2>&1; then
       echo "Something went wrong while trying to download Splunk. This script cannot continue. Exiting."
       exit 1
     fi
-    if ! dpkg -i /opt/splunk*.deb >/dev/null; then
+    if ! dpkg -i /vagrant/cache/splunk*.deb >/dev/null; then
       echo "Something went wrong while trying to install Splunk. This script cannot continue. Exiting."
       exit 1
     fi
